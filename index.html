@@ -691,6 +691,14 @@
           <option value="remoto">Modalidade: 100% Remoto / Home Office</option>
           <option value="presencial">Modalidade: Presencial / Híbrido</option>
         </select>
+
+        <select class="catho-select" id="selFonte">
+          <option value="all">Portal: Todos (RH Direto + Catho + Vagas.com)</option>
+          <option value="email_rh">Portal: Apenas com E-mail Direto de RH</option>
+          <option value="catho">Portal: Apenas Catho.com.br Oficial</option>
+          <option value="vagas">Portal: Apenas Vagas.com.br Oficial</option>
+          <option value="programathor">Portal: Apenas Programathor</option>
+        </select>
       </div>
 
       <!-- TAGS RÁPIDAS DE CIDADE/ESTADO ABAIXO -->
@@ -736,6 +744,8 @@
         <hr style="border:none; border-top:1px solid var(--border); margin:1rem 0;">
         <div style="font-size:0.8rem; color:var(--muted); display:flex; flex-direction:column; gap:0.45rem;">
           <div>📧 Com E-mail de RH: <strong id="statEmails" style="color:var(--emerald);">0</strong></div>
+          <div>💼 Vagas Catho Oficial: <strong id="statCatho" style="color:var(--catho-pink);">0</strong></div>
+          <div>🟢 Vagas.com.br Oficial: <strong id="statVagasCom" style="color:var(--catho-blue);">0</strong></div>
           <div>🎯 Estágio / Júnior: <strong id="statJr" style="color:var(--catho-blue);">0</strong></div>
           <div>🔗 Com LinkedIn: <strong id="statLinkedin">0</strong></div>
         </div>
@@ -1274,18 +1284,24 @@ function renderizarVagas() {
   const stack = document.getElementById('selStack').value;
   const nivel = document.getElementById('selNivel').value;
   const mod = document.getElementById('selModalidade').value;
+  const fonteFiltro = document.getElementById('selFonte').value;
   const priorizarEmail = document.getElementById('chkOnlyEmails').checked;
 
   let filtradas = todasVagas.filter(v => {
     if (stack === 'js' && !v.temJs) return false;
     if (stack === 'py' && !v.temPy) return false;
 
-    if (nivel === 'jr_estagio' && !['Estágio / Trainee', 'Júnior'].includes(v.nivel)) return false;
+    if (fonteFiltro === 'email_rh' && (v.emails || []).length === 0) return false;
+    if (fonteFiltro === 'catho' && !(v.fonte || '').toLowerCase().includes('catho')) return false;
+    if (fonteFiltro === 'vagas' && !(v.fonte || '').toLowerCase().includes('vagas.com')) return false;
+    if (fonteFiltro === 'programathor' && !(v.fonte || '').toLowerCase().includes('programathor')) return false;
+
+    if (nivel === 'jr_estagio' && !['Estágio / Trainee', 'Júnior', 'Júnior / Estágio'].includes(v.nivel)) return false;
     if (nivel === 'estagio' && v.nivel !== 'Estágio / Trainee') return false;
-    if (nivel === 'junior' && v.nivel !== 'Júnior') return false;
+    if (nivel === 'junior' && !['Júnior', 'Júnior / Estágio'].includes(v.nivel)) return false;
 
     if (mod === 'remoto' && !v.modalidade.toLowerCase().includes('remoto')) return false;
-    if (mod === 'presencial' && !['híbrido', 'presencial', 'híbrido / remoto'].includes(v.modalidade.toLowerCase())) return false;
+    if (mod === 'presencial' && !['híbrido', 'presencial', 'híbrido / remoto', 'presencial / híbrido'].includes(v.modalidade.toLowerCase())) return false;
 
     const textoVaga = `${v.titulo} ${(v.labels || []).join(' ')} ${(v.corpo || '').slice(0, 700)}`.toLowerCase();
     if (cargo && !textoVaga.includes(cargo)) return false;
@@ -1306,7 +1322,9 @@ function renderizarVagas() {
 
   document.getElementById('lblTotalResultados').innerText = filtradas.length;
   document.getElementById('statEmails').innerText = filtradas.filter(v => (v.emails || []).length > 0).length;
-  document.getElementById('statJr').innerText = filtradas.filter(v => ['Estágio / Trainee', 'Júnior'].includes(v.nivel)).length;
+  document.getElementById('statCatho').innerText = filtradas.filter(v => (v.fonte || '').toLowerCase().includes('catho')).length;
+  document.getElementById('statVagasCom').innerText = filtradas.filter(v => (v.fonte || '').toLowerCase().includes('vagas.com')).length;
+  document.getElementById('statJr').innerText = filtradas.filter(v => ['Estágio / Trainee', 'Júnior', 'Júnior / Estágio'].includes(v.nivel)).length;
   document.getElementById('statLinkedin').innerText = filtradas.filter(v => (v.linkedins || []).length > 0).length;
 
   const container = document.getElementById('jobsContainer');
@@ -1381,7 +1399,7 @@ function renderizarVagas() {
 }
 
 document.getElementById('btnProcurarVagas').addEventListener('click', renderizarVagas);
-['selStack', 'selNivel', 'selModalidade', 'chkOnlyEmails'].forEach(id => {
+['selStack', 'selNivel', 'selModalidade', 'selFonte', 'chkOnlyEmails'].forEach(id => {
   document.getElementById(id).addEventListener('change', renderizarVagas);
 });
 ['inpCargo', 'inpCidade'].forEach(id => {

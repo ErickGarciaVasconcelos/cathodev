@@ -1,12 +1,37 @@
 // Vercel Serverless Function — /api/vagas
 // Busca ao vivo vagas de TI (Python & JavaScript / Júnior & Estágio) em:
-// 1. Gupy Portal Oficial (Empresas do Brasil - link direto da vaga)
-// 2. Vagas.com.br (Portal Nacional - link direto vagas.com.br)
-// 3. Comunidades Tech BR (Extração de E-mails Diretos de RH @empresa + links diretos das empresas)
+// 1. Catho.com.br Oficial (link direto catho.com.br/vagas/...)
+// 2. Vagas.com.br Oficial (link direto vagas.com.br/vagas/...)
+// 3. Programathor Oficial (vagas Python & JavaScript no Brasil)
+// 4. Comunidades Tech BR (Extração de E-mails Diretos de RH @empresa + links diretos das empresas)
 
 const EMAIL_RE = /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g;
 const LINKEDIN_RE = /https?:\/\/(?:www\.|br\.)?linkedin\.com\/(?:in|company|jobs)\/[^\s)"'>\]]+/gi;
 const URL_EXTERNA_RE = /https?:\/\/(?!(?:www\.)?github\.com|avatars\.githubusercontent\.com|user-images\.githubusercontent\.com)[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}\/[^\s)"'>\]]*/gi;
+
+function decodeEntities(str) {
+  if (!str) return '';
+  return str
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(parseInt(dec, 10)))
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&quot;/gi, '"')
+    .replace(/&apos;/gi, "'")
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>');
+}
+
+function stripHtml(html) {
+  return decodeEntities(
+    (html || '')
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/p>/gi, '\n\n')
+      .replace(/<[^>]+>/g, ' ')
+  )
+    .replace(/[ \t]+/g, ' ')
+    .trim();
+}
 
 function extrairEmails(texto) {
   if (!texto) return [];
@@ -50,7 +75,7 @@ function detectarNivel(titulo, labels, corpo) {
   const ini = (corpo || '').slice(0, 350).toLowerCase();
   if (/\b(est[aá]gio|estagi[aá]ri[oa]|trainee)\b/.test(ini)) return 'Estágio / Trainee';
   if (/\b(j[uú]nior|jr)\b/.test(ini)) return 'Júnior';
-  return 'Júnior / Pleno';
+  return 'Júnior / Estágio';
 }
 
 function detectarModalidade(titulo, labels, corpo) {
@@ -62,73 +87,15 @@ function detectarModalidade(titulo, labels, corpo) {
   if (isRemoto) return 'Remoto';
   if (isHibrido) return 'Híbrido';
   if (isPresencial) return 'Presencial';
-  return 'A consultar';
-}
-
-function stripHtml(html) {
-  return (html || '')
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/p>/gi, '\n\n')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/[ \t]+/g, ' ')
-    .trim();
-}
-
-async function buscarGupy() {
-  const termos = ['desenvolvedor junior', 'estagio desenvolvimento', 'python junior', 'javascript junior'];
-  const resultados = [];
-  const vistos = new Set();
-
-  await Promise.all(
-    termos.map(async termo => {
-      try {
-        const r = await fetch(`https://portal.api.gupy.io/api/v1/jobs?jobName=${encodeURIComponent(termo)}&limit=15`, {
-          headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
-        });
-        if (!r.ok) return;
-        const json = await r.json();
-        for (const job of json.data || []) {
-          if (!job.jobUrl || vistos.has(job.jobUrl)) continue;
-          vistos.add(job.jobUrl);
-
-          const descLimpa = stripHtml(job.description || '');
-          const txtAll = `${job.name || ''} ${descLimpa}`.toLowerCase();
-          const temJs = /\b(javascript|typescript|react|node|nodejs|vue|next|front-end|frontend|fullstack|web)\b/.test(txtAll);
-          const temPy = /\b(python|django|fastapi|flask|pandas|dados|data|ia)\b/.test(txtAll);
-          const localStr = [job.city, job.state].filter(Boolean).join(' - ') || 'Brasil';
-          const modGupy = job.workplaceType === 'remote' ? 'Remoto' : job.workplaceType === 'hybrid' ? 'Híbrido' : 'Presencial';
-
-          resultados.push({
-            titulo: `${job.name} — ${job.careerPageName || 'Empresa Parceira'}`,
-            empresa: job.careerPageName || 'Portal Gupy',
-            local: localStr,
-            corpo: `${descLimpa}\n\nLocalidade: ${localStr}\nEmpresa: ${job.careerPageName || ''}`,
-            labels: [localStr, job.careerPageName].filter(Boolean),
-            emails: extrairEmails(descLimpa),
-            linkedins: [],
-            temJs: temJs || termo.includes('javascript'),
-            temPy: temPy || termo.includes('python'),
-            nivel: detectarNivel(job.name || '', [], descLimpa),
-            modalidade: modGupy,
-            url: job.jobUrl,
-            urlEmpresa: job.jobUrl,
-            data: (job.publishedDate || '').slice(0, 10),
-            fonte: `Gupy · ${job.careerPageName || 'Oficial'}`
-          });
-        }
-      } catch (_) {}
-    })
-  );
-  return resultados;
+  return 'Presencial / Híbrido';
 }
 
 async function buscarCatho() {
   const urls = [
     'https://www.catho.com.br/vagas/desenvolvedor-junior/',
     'https://www.catho.com.br/vagas/estagio-ti/',
-    'https://www.catho.com.br/vagas/programador-python/'
+    'https://www.catho.com.br/vagas/programador-python/',
+    'https://www.catho.com.br/vagas/desenvolvedor-javascript/'
   ];
   const resultados = [];
   const vistos = new Set();
@@ -141,27 +108,34 @@ async function buscarCatho() {
         });
         if (!r.ok) return;
         const html = await r.text();
-        const regexLink = /<a[^>]*href="(https:\/\/www\.catho\.com\.br\/vagas\/[a-z0-9\-]+\/\d+\/?)"[^>]*>([\s\S]*?)<\/a>/gi;
+        const regexArtigo = /<article[\s\S]*?<h2[^>]*class="title_offer"[^>]*>\s*<a[^>]*href="(\/vagas\/[^"]+)"[^>]*>([\s\S]*?)<\/a>[\s\S]*?<\/article>/gi;
         let m;
-        while ((m = regexLink.exec(html)) !== null) {
-          const link = m[1].trim();
-          const titulo = stripHtml(m[2]);
-          if (!titulo || titulo.length < 4 || vistos.has(link)) continue;
+        while ((m = regexArtigo.exec(html)) !== null) {
+          const bloco = m[0];
+          const pathUrl = m[1].trim();
+          const link = pathUrl.startsWith('http') ? pathUrl : `https://www.catho.com.br${pathUrl}`;
+          if (vistos.has(link)) continue;
           vistos.add(link);
 
-          const txtAll = `${titulo} ${u}`.toLowerCase();
+          const titulo = stripHtml(m[2]);
+          const locMatch = bloco.match(/i_job_location[\s\S]{0,180}?-\s*([^<\n]+)/i);
+          const cidade = locMatch ? stripHtml(locMatch[1]) : 'Brasil';
+          const salMatch = bloco.match(/i_salary[\s\S]{0,150}?<strong>([\s\S]*?)<\/strong>/i);
+          const salario = salMatch ? stripHtml(salMatch[1]) : 'A Combinar';
+
+          const txtAll = `${titulo} ${cidade} ${u}`.toLowerCase();
           resultados.push({
-            titulo: `${titulo} — Catho Oficial`,
-            empresa: 'Empresa na Catho',
-            local: 'Brasil',
-            corpo: `Vaga oficial capturada diretamente da Catho (${titulo}). Clique em "Abrir Vaga Oficial" para se candidatar direto no portal da Catho.`,
-            labels: ['Catho.com.br', 'Portal Oficial'],
+            titulo: `${titulo} (${cidade})`,
+            empresa: 'Catho Oficial',
+            local: cidade,
+            corpo: `Vaga Oficial na Catho.com.br\n\nCargo: ${titulo}\nLocalidade: ${cidade}\nSalário: ${salario}\n\nClique no botão "Abrir no Portal Oficial" abaixo para enviar seu currículo diretamente na página desta vaga na Catho.`,
+            labels: ['Catho.com.br', cidade, `Salário: ${salario}`].filter(Boolean),
             emails: [],
             linkedins: [],
-            temJs: /\b(javascript|typescript|react|node|front|web|full|ti)\b/.test(txtAll),
-            temPy: /\b(python|dados|data|back|ti)\b/.test(txtAll),
-            nivel: detectarNivel(titulo, [], u),
-            modalidade: detectarModalidade(titulo, [], ''),
+            temJs: /\b(javascript|typescript|react|node|front|web|full|ti|sistemas|software)\b/.test(txtAll),
+            temPy: /\b(python|dados|data|back|ti|sistemas|software)\b/.test(txtAll),
+            nivel: detectarNivel(titulo, [u.includes('estagio') ? 'Estágio' : 'Júnior'], ''),
+            modalidade: detectarModalidade(titulo, [cidade], ''),
             url: link,
             urlEmpresa: link,
             data: new Date().toISOString().slice(0, 10),
@@ -201,7 +175,7 @@ async function buscarVagasComBr() {
           const titulo = stripHtml(m[2]);
           const empresa = stripHtml(m[3]) || 'Confidencial';
           const resumo = stripHtml(m[4]);
-          const txtAll = `${titulo} ${resumo}`.toLowerCase();
+          const txtAll = `${titulo} ${resumo} ${u}`.toLowerCase();
 
           resultados.push({
             titulo: `${titulo} — ${empresa}`,
@@ -211,14 +185,66 @@ async function buscarVagasComBr() {
             labels: ['Vagas.com.br', empresa],
             emails: extrairEmails(resumo),
             linkedins: [],
-            temJs: /\b(javascript|typescript|react|node|front|web|full)\b/.test(txtAll),
-            temPy: /\b(python|dados|data|back)\b/.test(txtAll),
+            temJs: /\b(javascript|typescript|react|node|front|web|full|desenvolvedor|estagio|estágio)\b/.test(txtAll),
+            temPy: /\b(python|dados|data|back|desenvolvedor|estagio|estágio)\b/.test(txtAll),
             nivel: detectarNivel(titulo, [], resumo),
             modalidade: detectarModalidade(titulo, [], resumo),
             url: link,
             urlEmpresa: link,
             data: new Date().toISOString().slice(0, 10),
             fonte: 'Vagas.com.br Oficial'
+          });
+        }
+      } catch (_) {}
+    })
+  );
+  return resultados;
+}
+
+async function buscarProgramathor() {
+  const urls = [
+    'https://programathor.com.br/jobs-python',
+    'https://programathor.com.br/jobs-javascript'
+  ];
+  const resultados = [];
+  const vistos = new Set();
+
+  await Promise.all(
+    urls.map(async u => {
+      try {
+        const r = await fetch(u, {
+          headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/122.0.0.0' }
+        });
+        if (!r.ok) return;
+        const html = await r.text();
+        const regexLink = /<a[^>]*href="(\/jobs\/\d+-[^"]+)"[^>]*>([\s\S]*?)<\/a>/gi;
+        let m;
+        while ((m = regexLink.exec(html)) !== null) {
+          const link = `https://programathor.com.br${m[1].trim()}`;
+          if (vistos.has(link)) continue;
+          const textoBruto = stripHtml(m[2]);
+          if (!textoBruto || textoBruto.length < 8) continue;
+          vistos.add(link);
+
+          const tituloLimpo = textoBruto.split('Vaga vencida')[0].trim().slice(0, 110);
+          if (!tituloLimpo) continue;
+
+          resultados.push({
+            titulo: tituloLimpo,
+            empresa: 'Programathor Tech',
+            local: 'Brasil / Remoto',
+            corpo: `${textoBruto}\n\nVaga publicada no portal Programathor (${link}).`,
+            labels: ['Programathor', u.includes('python') ? 'Python' : 'JavaScript'],
+            emails: [],
+            linkedins: [],
+            temJs: u.includes('javascript') || /javascript|react|node|front/i.test(textoBruto),
+            temPy: u.includes('python') || /python|django|dados|data/i.test(textoBruto),
+            nivel: detectarNivel(tituloLimpo, [], textoBruto),
+            modalidade: detectarModalidade(tituloLimpo, [], textoBruto),
+            url: link,
+            urlEmpresa: link,
+            data: new Date().toISOString().slice(0, 10),
+            fonte: 'Programathor Oficial'
           });
         }
       } catch (_) {}
@@ -291,14 +317,14 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const [cathoVagas, vagasComBr, muraisRH, gupyVagas] = await Promise.all([
+    const [cathoVagas, vagasComBr, muraisRH, progVagas] = await Promise.all([
       buscarCatho(),
       buscarVagasComBr(),
       buscarMuraisComEmailRH(),
-      buscarGupy()
+      buscarProgramathor()
     ]);
 
-    const todas = [...muraisRH, ...cathoVagas, ...vagasComBr, ...gupyVagas];
+    const todas = [...muraisRH, ...cathoVagas, ...vagasComBr, ...progVagas];
     return res.status(200).json({
       ok: true,
       total: todas.length,
@@ -306,7 +332,7 @@ module.exports = async function handler(req, res) {
         rh_direto_comunidades: muraisRH.length,
         catho_oficial: cathoVagas.length,
         vagas_com_br: vagasComBr.length,
-        gupy_empresas: gupyVagas.length
+        programathor_oficial: progVagas.length
       },
       items: todas
     });
