@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CathoDev Radar — Busca de Vagas, E-mails de RH &amp; Big Tech</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --catho-blue: #22179a;
+    --catho-blue-dark: #160e6e;
+    --catho-blue-pill: #150d6b;
+    --catho-pink: #ec005c;
+    --catho-pink-hover: #c9004e;
+    --catho-lilac-bg: #eef0ff;
+    --catho-lilac-border: #c5cbff;
+    --catho-lilac-text: #281ca8;
+    --bg-page: #f5f6fa;
+    --surface: #ffffff;
+    --ink: #1e2235;
+    --muted: #5e6478;
+    --border: #e1e4ed;
+    --emerald: #059669;
+    --emerald-soft: #e6f9f1;
+    --font-main: 'Inter', 'Nunito Sans', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg-page);
+    color: var(--ink);
+    font-family: var(--font-main);
+    line-height: 1.5;
+  }
+
+  /* NAVBAR ESTILO CATHO */
+  .catho-navbar {
+    background: #ffffff;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(18, 10, 143, 0.04);
+  }
+  .catho-navbar__inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0.75rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .catho-logo {
+    font-family: 'Nunito Sans', sans-serif;
+    font-weight: 800;
+    font-size: 1.7rem;
+    letter-spacing: -0.03em;
+    color: var(--catho-blue);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .catho-logo span.bracket {
+    color: var(--catho-pink);
+    font-weight: 900;
+  }
+  .catho-logo small {
+    font-size: 0.72rem;
+    font-weight: 700;
+    background: var(--catho-lilac-bg);
+    color: var(--catho-blue);
+    padding: 0.15rem 0.5rem;
+    border-radius: 6px;
+    margin-left: 0.5rem;
+    letter-spacing: 0.02em;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+  .nav-tab {
+    background: transparent;
+    border: none;
+    font-family: var(--font-main);
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--muted);
+    padding: 0.5rem 0.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .nav-tab:hover {
+    color: var(--catho-blue);
+    background: var(--catho-lilac-bg);
+  }
+  .nav-tab.active {
+    color: var(--catho-blue);
+    background: var(--catho-lilac-bg);
+    font-weight: 700;
+  }
+
+  /* PÍLULA DE E-MAIL REMETENTE NO TOPO (PERFIL) */
+  .sender-profile-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    background: #f8f9fc;
+    border: 1.5px solid var(--catho-lilac-border);
+    padding: 0.42rem 0.85rem;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 0.82rem;
+    color: var(--ink);
+    transition: all 0.15s ease;
+  }
+  .sender-profile-btn:hover {
+    border-color: var(--catho-pink);
+    background: #fff;
+  }
+  .sender-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--catho-blue);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+
+  /* CONTAINER PRINCIPAL */
+  .main-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 1.5rem 1.25rem 4rem;
+  }
+
+  /* CAIXA AZUL DE BUSCA DE VAGAS IGUAL À CATHO */
+  .catho-search-hero {
+    background: var(--catho-blue);
+    border-radius: 12px;
+    padding: 1.6rem 1.85rem;
+    color: #ffffff;
+    box-shadow: 0 12px 30px rgba(34, 23, 154, 0.22);
+    margin-bottom: 1.25rem;
+  }
+  .catho-search-hero__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .catho-search-hero__top h1 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin: 0;
+  }
+  .only-email-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.12);
+    padding: 0.38rem 0.85rem;
+    border-radius: 999px;
+  }
+  .only-email-toggle input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--catho-pink);
+    cursor: pointer;
+  }
+
+  /* BARRA DE BUSCA DUPLA BRANCA + BOTÃO ROSA CATHO */
+  .catho-search-bar {
+    display: flex;
+    gap: 0.75rem;
+    align-items: stretch;
+  }
+  .catho-inputs-box {
+    flex: 1;
+    background: #ffffff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    padding: 0.2rem;
+  }
+  .catho-input-col {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 0.45rem 0.85rem;
+    gap: 0.55rem;
+  }
+  .catho-input-col:first-child {
+    border-right: 1px solid #d8dce8;
+  }
+  .catho-input-col input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 0.95rem;
+    color: var(--ink);
+    font-family: var(--font-main);
+  }
+  .catho-clear-btn {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0 0.25rem;
+  }
+  .catho-clear-btn:hover { color: var(--ink); }
+
+  .btn-catho-pink {
+    background: var(--catho-pink);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 0 1.65rem;
+    font-family: var(--font-main);
+    font-size: 0.96rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: background 0.15s ease, transform 0.15s ease;
+    white-space: nowrap;
+    min-height: 48px;
+  }
+  .btn-catho-pink:hover {
+    background: var(--catho-pink-hover);
+    transform: translateY(-1px);
+  }
+
+  /* DROPDOWNS ESCUROS DENTRO DA CAIXA AZUL CATHO */
+  .catho-subfilters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1rem;
+  }
+  .catho-select {
+    background: var(--catho-blue-pill);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 6px;
+    padding: 0.48rem 0.85rem;
+    font-family: var(--font-main);
+    font-size: 0.83rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .catho-select:focus { outline: none; border-color: #fff; }
+
+  /* CHIPS DE CIDADE ATIVOS ABAIXO DOS DROPDOWNS */
+  .catho-active-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 0.95rem;
+    align-items: center;
+  }
+  .catho-tag-chip {
+    background: var(--catho-blue-dark);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    padding: 0.3rem 0.65rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .catho-tag-chip:hover, .catho-tag-chip.active {
+    background: #ffffff;
+    color: var(--catho-blue);
+  }
+
+  /* BANNER LILÁS INFORMATIVO IGUAL À CATHO (MOSTRANDO O E-MAIL DE ENVIO ATUAL) */
+  .catho-info-banner {
+    background: var(--catho-lilac-bg);
+    border: 1px solid var(--catho-lilac-border);
+    border-radius: 10px;
+    padding: 0.95rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .catho-info-banner__left {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+  }
+  .catho-info-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--catho-blue);
+    color: var(--catho-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+  .catho-info-banner h4 {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--catho-lilac-text);
+    font-weight: 700;
+  }
+  .catho-info-banner p {
+    margin: 0.15rem 0 0;
+    font-size: 0.82rem;
+    color: #434968;
+  }
+
+  /* LAYOUT DE RESULTADOS EM 2 COLUNAS ESTILO CATHO */
+  .catho-results-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+  @media (max-width: 860px) {
+    .catho-results-layout { grid-template-columns: 1fr; }
+    .catho-search-bar { flex-direction: column; }
+    .catho-inputs-box { flex-direction: column; }
+    .catho-input-col:first-child { border-right: none; border-bottom: 1px solid #d8dce8; width: 100%; }
+    .catho-input-col { width: 100%; }
+  }
+
+  .catho-sidebar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.15rem;
+    position: sticky;
+    top: 4.8rem;
+  }
+  .catho-sidebar h3 {
+    font-size: 0.92rem;
+    margin: 0 0 0.25rem;
+    color: var(--ink);
+  }
+  .catho-count {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--catho-blue);
+    margin-bottom: 0.9rem;
+  }
+  .sort-toggle {
+    display: flex;
+    background: #f1f3f9;
+    border-radius: 8px;
+    padding: 0.22rem;
+    margin-bottom: 1rem;
+  }
+  .sort-btn {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 0.45rem 0.4rem;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--muted);
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .sort-btn.active {
+    background: #ffffff;
+    color: var(--catho-blue);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+
+  /* CARTÕES DE VAGA BRANCOS ESTILO CATHO */
+  .catho-jobs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .catho-job-card {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.35rem 1.5rem;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+    transition: border-color 0.16s ease, box-shadow 0.16s ease;
+  }
+  .catho-job-card:hover {
+    border-color: #b4bcf5;
+    box-shadow: 0 8px 22px rgba(34, 23, 154, 0.08);
+  }
+  .catho-job-card.has-direct-email {
+    border-left: 4px solid var(--catho-pink);
+  }
+  .catho-job-card__meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.75rem;
+  }
+  .catho-highlight-label {
+    color: var(--catho-pink);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.72rem;
+  }
+  .catho-active-recruiter-pill {
+    display: inline-block;
+    background: var(--catho-lilac-bg);
+    color: var(--catho-blue);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.22rem 0.65rem;
+    border-radius: 6px;
+    margin-bottom: 0.6rem;
+  }
+  .catho-job-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--catho-blue);
+    margin: 0 0 0.5rem;
+    line-height: 1.3;
+  }
+  .catho-job-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-bottom: 0.85rem;
+  }
+  .catho-tag {
+    background: #f1f3f9;
+    color: #3b4259;
+    font-size: 0.76rem;
+    font-weight: 600;
+    padding: 0.22rem 0.65rem;
+    border-radius: 6px;
+  }
+  .catho-tag.email-tag {
+    background: var(--emerald-soft);
+    color: var(--emerald);
+    font-family: var(--font-mono);
+  }
+
+  .catho-email-box {
+    background: #f8f9ff;
+    border: 1px dashed var(--catho-lilac-border);
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    margin-top: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .btn-outline-blue {
+    background: #ffffff;
+    color: var(--catho-blue);
+    border: 1.5px solid var(--catho-blue);
+    border-radius: 8px;
+    padding: 0.48rem 0.95rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.15s ease;
+  }
+  .btn-outline-blue:hover {
+    background: var(--catho-lilac-bg);
+  }
+
+  /* MODAL DE ENVIO E CONFIGURAÇÃO DE E-MAIL REMETENTE */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 1rem;
+  }
+  .modal-backdrop.open {
+    display: flex;
+  }
+  .modal-card {
+    background: #ffffff;
+    border-radius: 14px;
+    max-width: 660px;
+    width: 100%;
+    max-height: 92vh;
+    overflow-y: auto;
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border);
+  }
+  .modal-head {
+    background: var(--catho-blue);
+    color: #ffffff;
+    padding: 1.15rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .modal-head h3 {
+    margin: 0;
+    font-size: 1.08rem;
+  }
+  .modal-close {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-size: 1.35rem;
+    cursor: pointer;
+  }
+  .modal-body {
+    padding: 1.35rem 1.5rem;
+  }
+  .form-row {
+    margin-bottom: 0.95rem;
+  }
+  .form-row label {
+    display: block;
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.3rem;
+  }
+  .form-row input, .form-row select, .form-row textarea {
+    width: 100%;
+    padding: 0.65rem 0.85rem;
+    border-radius: 8px;
+    border: 1.5px solid #cbd5e1;
+    font-family: var(--font-main);
+    font-size: 0.9rem;
+    color: var(--ink);
+  }
+  .form-row textarea {
+    min-height: 150px;
+    resize: vertical;
+    line-height: 1.45;
+  }
+  .sender-highlight-bar {
+    background: var(--catho-lilac-bg);
+    border: 1px solid var(--catho-lilac-border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .bigtech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+    gap: 1.15rem;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    background: var(--catho-blue);
+    color: #fff;
+    padding: 0.85rem 1.25rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    opacity: 0;
+    transform: translateY(12px);
+    transition: all 0.22s ease;
+    pointer-events: none;
+    z-index: 10000;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- TOP NAVBAR ESTILO CATHO -->
+<header class="catho-navbar">
+  <div class="catho-navbar__inner">
+    <a href="#" class="catho-logo">
+      <span class="bracket">&lt;</span>cathodev<span class="bracket">&gt;</span>
+      <small>RADAR JS &amp; PYTHON</small>
+    </a>
+
+    <nav class="nav-links">
+      <button type="button" class="nav-tab active" data-tab="secVagas">🔍 Busca de Vagas &amp; E-mails RH</button>
+      <button type="button" class="nav-tab" data-tab="secBigTech">🏢 Google, IBM, Microsoft &amp; Portais</button>
+    </nav>
+
+    <!-- BOTÃO CLARO QUE MOSTRA QUAL E-MAIL VOCÊ ESTÁ USANDO -->
+    <button type="button" class="sender-profile-btn" id="btnOpenConfigEmail" title="Clique para ver ou alterar seu e-mail de envio">
+      <span class="sender-avatar">✉️</span>
+      <span>Meu E-mail: <strong id="lblMeuEmailTopo" style="color:var(--catho-blue);">Configurar meu e-mail...</strong></span>
+      <span style="color:var(--catho-pink); font-weight:700; font-size:0.75rem;">Alterar ✎</span>
+    </button>
+  </div>
+</header>
+
+<main class="main-wrap">
+
+  <!-- SEÇÃO 1: BUSCA DE VAGAS ESTILO CATHO -->
+  <section id="secVagas" class="tab-sec">
+
+    <!-- CAIXA AZUL ROYAL DE BUSCA IGUAL À CATHO -->
+    <div class="catho-search-hero">
+      <div class="catho-search-hero__top">
+        <h1>Busca de vagas</h1>
+        <label class="only-email-toggle">
+          <input type="checkbox" id="chkOnlyEmails" checked>
+          <span>🔥 Destacar vagas com E-mail Direto de RH</span>
+        </label>
+      </div>
+
+      <div class="catho-search-bar">
+        <div class="catho-inputs-box">
+          <div class="catho-input-col">
+            <span>🔍</span>
+            <input type="text" id="inpCargo" placeholder="Cargo ou tecnologia (ex: estagio ti, python, javascript)" value="">
+            <button type="button" class="catho-clear-btn" onclick="document.getElementById('inpCargo').value=''; renderizarVagas();">✕</button>
+          </div>
+          <div class="catho-input-col">
+            <span>📍</span>
+            <input type="text" id="inpCidade" placeholder="Localização (ex: São Paulo - SP, RJ, MG, Remoto)" value="">
+            <button type="button" class="catho-clear-btn" onclick="document.getElementById('inpCidade').value=''; renderizarVagas();">✕</button>
+          </div>
+        </div>
+        <button type="button" class="btn-catho-pink" id="btnProcurarVagas">
+          <span>🔍 Procurar vagas</span>
+        </button>
+      </div>
+
+      <!-- FILTROS DROPDOWN ESCUROS IGUAIS À CATHO -->
+      <div class="catho-subfilters">
+        <select class="catho-select" id="selStack">
+          <option value="all">Linguagem: JavaScript + Python (Todas)</option>
+          <option value="js">Linguagem: JavaScript / React / Node / TS</option>
+          <option value="py">Linguagem: Python / Django / Dados / IA</option>
+        </select>
+
+        <select class="catho-select" id="selNivel">
+          <option value="all">Contrato / Nível: Todos (Mais E-mails de RH)</option>
+          <option value="jr_estagio">Contrato / Nível: Apenas Estágio &amp; Júnior</option>
+          <option value="estagio">Contrato / Nível: Apenas Estágio / Trainee</option>
+          <option value="junior">Contrato / Nível: Apenas Júnior</option>
+        </select>
+
+        <select class="catho-select" id="selModalidade">
+          <option value="all">Modalidade: Remoto + Presencial / Híbrido</option>
+          <option value="remoto">Modalidade: 100% Remoto / Home Office</option>
+          <option value="presencial">Modalidade: Presencial / Híbrido</option>
+        </select>
+      </div>
+
+      <!-- TAGS RÁPIDAS DE CIDADE/ESTADO ABAIXO -->
+      <div class="catho-active-tags">
+        <span style="font-size:0.75rem; opacity:0.85;">Locais rápidos:</span>
+        <button type="button" class="catho-tag-chip active" data-uf="">Brasil Todo</button>
+        <button type="button" class="catho-tag-chip" data-uf="São Paulo">São Paulo - SP</button>
+        <button type="button" class="catho-tag-chip" data-uf="Rio de Janeiro">Rio de Janeiro - RJ</button>
+        <button type="button" class="catho-tag-chip" data-uf="Belo Horizonte">Belo Horizonte - MG</button>
+        <button type="button" class="catho-tag-chip" data-uf="Curitiba">Curitiba - PR</button>
+        <button type="button" class="catho-tag-chip" data-uf="Florianópolis">Florianópolis - SC</button>
+        <button type="button" class="catho-tag-chip" data-uf="Porto Alegre">Porto Alegre - RS</button>
+        <button type="button" class="catho-tag-chip" data-uf="Remoto">Remoto / Home Office</button>
+      </div>
+    </div>
+
+    <!-- BANNER LILÁS ESTILO CATHO MOSTRANDO A CONTA DE E-MAIL REMETENTE -->
+    <div class="catho-info-banner">
+      <div class="catho-info-banner__left">
+        <div class="catho-info-icon">i</div>
+        <div>
+          <h4>Controle Total do seu E-mail de Envio!</h4>
+          <p>Seus currículos serão disparados a partir da sua conta: <strong id="lblMeuEmailBanner" style="color:var(--catho-blue);">Não configurado (clique ao lado para definir seu Gmail/Outlook)</strong></p>
+        </div>
+      </div>
+      <button type="button" class="btn-outline-blue" onclick="abrirModalPerfilEmail()">
+        ⚙️ Escolher / Alterar Meu E-mail de Disparo
+      </button>
+    </div>
+
+    <!-- ÁREA DE RESULTADOS EM 2 COLUNAS COMO NA CATHO -->
+    <div class="catho-results-layout">
+      <aside class="catho-sidebar">
+        <h3>Vagas de emprego encontradas</h3>
+        <div class="catho-count"><span id="lblTotalResultados">0</span> resultados</div>
+
+        <div style="font-size:0.78rem; color:var(--muted); margin-bottom:0.4rem; font-weight:600;">Ordenar por:</div>
+        <div class="sort-toggle">
+          <button type="button" class="sort-btn active" id="btnSortEmail">Com E-mail RH</button>
+          <button type="button" class="sort-btn" id="btnSortRecent">Mais Recentes</button>
+        </div>
+
+        <hr style="border:none; border-top:1px solid var(--border); margin:1rem 0;">
+        <div style="font-size:0.8rem; color:var(--muted); display:flex; flex-direction:column; gap:0.45rem;">
+          <div>📧 Com E-mail de RH: <strong id="statEmails" style="color:var(--emerald);">0</strong></div>
+          <div>🎯 Estágio / Júnior: <strong id="statJr" style="color:var(--catho-blue);">0</strong></div>
+          <div>🔗 Com LinkedIn: <strong id="statLinkedin">0</strong></div>
+        </div>
+
+        <button type="button" class="btn-outline-blue" id="btnExportCsv" style="width:100%; justify-content:center; margin-top:1rem;">
+          📥 Baixar Planilha CSV
+        </button>
+      </aside>
+
+      <div>
+        <div id="loadingBox" style="background:#fff; border:1px solid var(--border); border-radius:12px; padding:2rem; text-align:center; display:none;">
+          <p style="font-weight:700; color:var(--catho-blue); margin:0 0 0.3rem;">🔎 Buscando vagas e extraindo e-mails de recrutadores ao vivo...</p>
+          <p style="font-size:0.82rem; color:var(--muted); margin:0;">Consultando murais de tecnologia (backend-br, frontendbr, react-brasil, pybr, qa-brasil)</p>
+        </div>
+        <div class="catho-jobs-list" id="jobsContainer"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEÇÃO 2: BIG TECH (GOOGLE, IBM, MICROSOFT) & BUSCA DIRETA -->
+  <section id="secBigTech" class="tab-sec" style="display:none;">
+    <div class="catho-info-banner" style="margin-bottom:1.5rem;">
+      <div class="catho-info-banner__left">
+        <div class="catho-info-icon">🎯</div>
+        <div>
+          <h4>Passaporte Big Tech (Google, IBM, Microsoft) + Portais Nacionais</h4>
+          <p>Acesse diretamente as vagas de Estágio / Júnior no Brasil e encontre os Tech Recruiters dessas empresas no LinkedIn.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bigtech-grid">
+      <div class="catho-job-card">
+        <span class="catho-active-recruiter-pill">ENGENHARIA BRASIL · SP &amp; BH</span>
+        <h3 class="catho-job-title">🔵 Google Brasil (Estágio &amp; Júnior)</h3>
+        <p style="font-size:0.85rem; color:var(--muted);">Vagas oficiais de <em>Software Engineering Intern</em>, <em>STEP</em> e <em>Early Career</em> em Belo Horizonte (MG) e São Paulo (SP).</p>
+        <div style="display:flex; flex-direction:column; gap:0.5rem; margin-top:1rem;">
+          <a href="https://www.google.com/about/careers/applications/jobs/results/?location=Brazil&target_level=INTERN_AND_APPRENTICE&target_level=EARLY" target="_blank" rel="noopener" class="btn-catho-pink" style="text-decoration:none; min-height:42px; font-size:0.86rem;">🌐 Abrir Vagas Google Brasil ↗</a>
+          <a href="https://www.google.com/search?q=site%3Abr.linkedin.com%2Fin+%28%22University+Recruiter%22+OR+%22Tech+Recruiter%22%29+%22Google%22+Brasil" target="_blank" rel="noopener" class="btn-outline-blue">🔎 Ver Recrutadores da Google no LinkedIn ↗</a>
+        </div>
+      </div>
+
+      <div class="catho-job-card">
+        <span class="catho-active-recruiter-pill">ESTÁGIO &amp; ASSOCIATES · SP / RJ / REMOTO</span>
+        <h3 class="catho-job-title">🔷 IBM Brasil (Python, JS &amp; IA)</h3>
+        <p style="font-size:0.85rem; color:var(--muted);">A IBM Brasil abre centenas de vagas de Estágio e Júnior (Associate Developer) todos os semestres.</p>
+        <div style="display:flex; flex-direction:column; gap:0.5rem; margin-top:1rem;">
+          <a href="https://www.ibm.com/br-pt/careers/search?field_keyword_05[0]=Brazil&field_keyword_18[0]=Internship&field_keyword_18[1]=Entry%20Level" target="_blank" rel="noopener" class="btn-catho-pink" style="text-decoration:none; min-height:42px; font-size:0.86rem;">🌐 Abrir Vagas IBM Brasil ↗</a>
+          <a href="https://www.google.com/search?q=site%3Abr.linkedin.com%2Fin+%28%22Tech+Recruiter%22+OR+%22Talent+Acquisition%22%29+%22IBM%22+Brasil" target="_blank" rel="noopener" class="btn-outline-blue">🔎 Ver Recrutadores da IBM no LinkedIn ↗</a>
+        </div>
+      </div>
+
+      <div class="catho-job-card">
+        <span class="catho-active-recruiter-pill">STUDENTS &amp; GRADUATES · BRASIL</span>
+        <h3 class="catho-job-title">🟩 Microsoft Brasil (Estágio &amp; Júnior)</h3>
+        <p style="font-size:0.85rem; color:var(--muted);">Programas Microsoft Internship e recém-formados (Aspire) para Engenharia de Software e Dados.</p>
+        <div style="display:flex; flex-direction:column; gap:0.5rem; margin-top:1rem;">
+          <a href="https://jobs.careers.microsoft.com/global/en/search?lc=Brazil&exp=Students%20and%20graduates&l=en_us&pg=1&pgSz=20&o=Relevance" target="_blank" rel="noopener" class="btn-catho-pink" style="text-decoration:none; min-height:42px; font-size:0.86rem;">🌐 Abrir Vagas Microsoft Brasil ↗</a>
+          <a href="https://www.google.com/search?q=site%3Abr.linkedin.com%2Fin+%28%22University+Recruiter%22+OR+%22Talent+Acquisition%22%29+%22Microsoft%22+Brasil" target="_blank" rel="noopener" class="btn-outline-blue">🔎 Ver Recrutadores da Microsoft no LinkedIn ↗</a>
+        </div>
+      </div>
+
+      <div class="catho-job-card">
+        <span class="catho-active-recruiter-pill">PORTAIS NACIONAIS PRÉ-FILTRADOS</span>
+        <h3 class="catho-job-title">🇧🇷 Catho, Vagas.com.br &amp; InfoJobs</h3>
+        <p style="font-size:0.85rem; color:var(--muted);">Atalhos diretos já filtrados para Estágio e Desenvolvedor Júnior em Python e JavaScript.</p>
+        <div style="display:flex; flex-direction:column; gap:0.5rem; margin-top:1rem;">
+          <a href="https://www.catho.com.br/vagas/desenvolvedor-junior/" target="_blank" rel="noopener" class="btn-outline-blue">💼 Catho: Desenvolvedor Júnior ↗</a>
+          <a href="https://www.vagas.com.br/vagas-de-desenvolvedor-junior" target="_blank" rel="noopener" class="btn-outline-blue">🟢 Vagas.com.br: Desenvolvedor Júnior ↗</a>
+          <a href="https://www.infojobs.com.br/vagas-de-emprego-desenvolvedor+junior.aspx" target="_blank" rel="noopener" class="btn-outline-blue">📋 InfoJobs: Desenvolvedor Júnior ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ==================== MODAL 1: CONFIGURAR MEU E-MAIL REMETENTE ==================== -->
+<div class="modal-backdrop" id="modalPerfilEmail">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>⚙️ Configurar Meu E-mail de Envio (Remetente)</h3>
+      <button type="button" class="modal-close" onclick="fecharModalPerfilEmail()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin:0 0 1rem; font-size:0.86rem; color:var(--muted);">
+        Informe abaixo <strong>qual é o seu e-mail</strong> e por onde você prefere enviar seus currículos. Assim, mesmo que você tenha várias contas abertas no navegador, o sistema abrirá exatamente a conta que você escolher aqui:
+      </p>
+
+      <div class="form-row">
+        <label>Seu E-mail Remetente (De onde o e-mail será enviado)</label>
+        <input type="email" id="cfgEmailRemetente" placeholder="Ex: erick.vasconcelos@gmail.com">
+      </div>
+
+      <div class="form-row">
+        <label>Por qual plataforma você quer disparar o e-mail?</label>
+        <select id="cfgProvedorEnvio">
+          <option value="gmail">🌐 Gmail Web (abre direto na conta de e-mail informada acima)</option>
+          <option value="outlook">📨 Outlook / Hotmail Web (abre o compositor do Outlook.com)</option>
+          <option value="mailto">💻 Aplicativo de E-mail do Windows / Celular (mailto:)</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label>Seu Nome Completo (para assinatura do e-mail)</label>
+        <input type="text" id="cfgNomeCandidato" placeholder="Ex: Erick Garcia Vasconcelos">
+      </div>
+
+      <div class="form-row">
+        <label>Seu Telefone / WhatsApp de Contato</label>
+        <input type="text" id="cfgTelefoneCandidato" placeholder="Ex: (11) 99999-9999">
+      </div>
+
+      <div class="form-row">
+        <label>Link do seu GitHub ou LinkedIn</label>
+        <input type="text" id="cfgGithubCandidato" placeholder="Ex: https://github.com/ErickGarciaVasconcelos">
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:0.65rem; margin-top:1.25rem;">
+        <button type="button" class="btn-outline-blue" onclick="fecharModalPerfilEmail()">Cancelar</button>
+        <button type="button" class="btn-catho-pink" onclick="salvarConfigEmail()">💾 Salvar Meu E-mail de Envio</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL 2: PRÉ-VISUALIZAR E DISPARAR E-MAIL PARA A VAGA ==================== -->
+<div class="modal-backdrop" id="modalComposer">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>✉️ Revisar e Disparar E-mail para o RH</h3>
+      <button type="button" class="modal-close" onclick="fecharModalComposer()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="sender-highlight-bar">
+        <div>
+          <div style="font-size:0.72rem; text-transform:uppercase; color:var(--muted); font-weight:700;">De (Seu E-mail Remetente):</div>
+          <div id="compDeEmail" style="font-family:var(--font-mono); font-weight:700; color:var(--catho-blue); font-size:0.92rem;">--</div>
+        </div>
+        <button type="button" class="btn-outline-blue" style="padding:0.3rem 0.65rem; font-size:0.75rem;" onclick="fecharModalComposer(); abrirModalPerfilEmail();">
+          Trocar meu e-mail ✎
+        </button>
+      </div>
+
+      <div class="form-row">
+        <label>Para (E-mail do RH / Recrutador da Vaga)</label>
+        <input type="text" id="compParaEmail" style="font-family:var(--font-mono); font-weight:700; color:var(--emerald); background:#f0fdf4;">
+      </div>
+
+      <div class="form-row">
+        <label>Assunto do E-mail (Você pode editar)</label>
+        <input type="text" id="compAssunto">
+      </div>
+
+      <div class="form-row">
+        <label>Mensagem de Apresentação (Lembre-se de anexar seu Currículo PDF ao abrir!)</label>
+        <textarea id="compCorpo"></textarea>
+      </div>
+
+      <div style="display:flex; flex-wrap:wrap; gap:0.6rem; justify-content:space-between; align-items:center; margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border);">
+        <button type="button" class="btn-outline-blue" onclick="copiarTudoComposer()">📋 Copiar E-mail + Mensagem</button>
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+          <button type="button" class="btn-outline-blue" onclick="dispararAgora('outlook')">📨 Abrir no Outlook</button>
+          <button type="button" class="btn-catho-pink" onclick="dispararAgora('preferido')" id="btnDispararPrincipal">
+            🚀 Abrir no Meu E-mail e Enviar ↗
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL 3: DETALHES COMPLETOS DA VAGA DENTRO DO PRÓPRIO SITE ==================== -->
+<div class="modal-backdrop" id="modalDetalhesVaga">
+  <div class="modal-card" style="max-width: 740px;">
+    <div class="modal-head">
+      <h3 id="detTituloModal">📄 Detalhes da Vaga</h3>
+      <button type="button" class="modal-close" onclick="fecharModalDetalhes()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="detTagsModal" class="catho-job-tags" style="margin-bottom:1rem;"></div>
+      <div id="detEmailBoxModal" style="margin-bottom:1rem;"></div>
+      <div style="background:#f8f9fc; border:1px solid var(--border); border-radius:10px; padding:1.15rem; max-height:380px; overflow-y:auto; white-space:pre-wrap; font-size:0.88rem; color:var(--ink); line-height:1.6;" id="detCorpoModal"></div>
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.6rem; margin-top:1.15rem; padding-top:1rem; border-top:1px solid var(--border);">
+        <button type="button" class="btn-outline-blue" onclick="fecharModalDetalhes()">Fechar</button>
+        <div id="detBotoesModal" style="display:flex; gap:0.5rem; flex-wrap:wrap;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const STORAGE_PERFIL_KEY = 'cathodev_perfil_remetente_v1';
+const EMAIL_RE = /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g;
+const LINKEDIN_RE = /https?:\/\/(?:www\.|br\.)?linkedin\.com\/(?:in|company|jobs)\/[^\s)"'>\]]+/gi;
+const URL_EXTERNA_RE = /https?:\/\/(?!(?:www\.)?github\.com|avatars\.githubusercontent\.com|user-images\.githubusercontent\.com)[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}\/[^\s)"'>\]]*/gi;
+
+let todasVagas = [];
+let vagasFiltradasAtuais = [];
+let criterioOrdenacao = 'email'; // 'email' ou 'recent'
+
+function obterPerfil() {
+  try {
+    const salvo = JSON.parse(localStorage.getItem(STORAGE_PERFIL_KEY) || '{}');
+    return {
+      email: salvo.email || '',
+      provedor: salvo.provedor || 'gmail',
+      nome: salvo.nome || 'Erick Garcia Vasconcelos',
+      telefone: salvo.telefone || '',
+      github: salvo.github || 'https://github.com/ErickGarciaVasconcelos'
+    };
+  } catch (e) {
+    return { email: '', provedor: 'gmail', nome: 'Erick Garcia Vasconcelos', telefone: '', github: 'https://github.com/ErickGarciaVasconcelos' };
+  }
+}
+
+function sincronizarLabelRemetente() {
+  const p = obterPerfil();
+  const lblTopo = document.getElementById('lblMeuEmailTopo');
+  const lblBanner = document.getElementById('lblMeuEmailBanner');
+  const nomeProv = p.provedor === 'gmail' ? 'Gmail' : (p.provedor === 'outlook' ? 'Outlook' : 'App Padrão');
+
+  if (p.email) {
+    lblTopo.innerText = `${p.email} (${nomeProv})`;
+    lblBanner.innerText = `${p.email} via ${nomeProv}`;
+  } else {
+    lblTopo.innerText = 'Clique p/ definir seu e-mail';
+    lblBanner.innerText = 'Ainda não definido — clique no botão ao lado para informar seu e-mail!';
+  }
+}
+
+function abrirModalPerfilEmail() {
+  const p = obterPerfil();
+  document.getElementById('cfgEmailRemetente').value = p.email;
+  document.getElementById('cfgProvedorEnvio').value = p.provedor;
+  document.getElementById('cfgNomeCandidato').value = p.nome;
+  document.getElementById('cfgTelefoneCandidato').value = p.telefone;
+  document.getElementById('cfgGithubCandidato').value = p.github;
+  document.getElementById('modalPerfilEmail').classList.add('open');
+}
+
+function fecharModalPerfilEmail() {
+  document.getElementById('modalPerfilEmail').classList.remove('open');
+}
+
+function salvarConfigEmail() {
+  const novo = {
+    email: document.getElementById('cfgEmailRemetente').value.trim(),
+    provedor: document.getElementById('cfgProvedorEnvio').value,
+    nome: document.getElementById('cfgNomeCandidato').value.trim() || 'Erick Garcia Vasconcelos',
+    telefone: document.getElementById('cfgTelefoneCandidato').value.trim(),
+    github: document.getElementById('cfgGithubCandidato').value.trim() || 'https://github.com/ErickGarciaVasconcelos'
+  };
+  localStorage.setItem(STORAGE_PERFIL_KEY, JSON.stringify(novo));
+  sincronizarLabelRemetente();
+  fecharModalPerfilEmail();
+  showToast(`✅ E-mail remetente salvo: ${novo.email || 'Padrão'}`);
+}
+
+document.getElementById('btnOpenConfigEmail').addEventListener('click', abrirModalPerfilEmail);
+
+/* MODAL COMPOSER DE ENVIO */
+function abrirComposerVaga(emailDestino, tituloVaga) {
+  const p = obterPerfil();
+  const remTxt = p.email
+    ? `${p.email} (${p.provedor === 'gmail' ? 'Gmail Web' : p.provedor === 'outlook' ? 'Outlook Web' : 'App do Sistema'})`
+    : 'Não configurado (Clique em "Trocar meu e-mail" ao lado para definir qual conta usar)';
+
+  document.getElementById('compDeEmail').innerText = remTxt;
+  document.getElementById('compParaEmail').value = emailDestino;
+  document.getElementById('compAssunto').value = `Candidatura: Desenvolvedor Júnior / Estágio (JS & Python) — ${tituloVaga}`;
+
+  const linhaTel = p.telefone ? `\nTelefone / WhatsApp: ${p.telefone}` : '';
+  const linhaEmail = p.email ? `\nE-mail: ${p.email}` : '';
+
+  document.getElementById('compCorpo').value =
+`Olá, equipe de Recrutamento e Seleção!
+
+Vi a divulgação da oportunidade (${tituloVaga}) e gostaria de submeter meu currículo para avaliação como Desenvolvedor Júnior / Estagiário em Desenvolvimento (JavaScript e Python).
+
+Tenho experiência prática desenvolvendo sistemas web, integrações de APIs e automações em Python e JavaScript, que podem ser conferidos no meu GitHub:
+${p.github}
+
+Segue meu currículo em anexo. Fico à disposição para testes técnicos ou uma entrevista!
+
+Atenciosamente,
+${p.nome}${linhaTel}${linhaEmail}`;
+
+  const btnMain = document.getElementById('btnDispararPrincipal');
+  if (p.provedor === 'gmail') {
+    btnMain.innerText = p.email ? `🚀 Abrir no meu Gmail (${p.email}) ↗` : '🚀 Abrir no Gmail Web ↗';
+  } else if (p.provedor === 'outlook') {
+    btnMain.innerText = '🚀 Abrir no meu Outlook Web ↗';
+  } else {
+    btnMain.innerText = '🚀 Abrir no App de E-mail ↗';
+  }
+
+  document.getElementById('modalComposer').classList.add('open');
+}
+
+function fecharModalComposer() {
+  document.getElementById('modalComposer').classList.remove('open');
+}
+
+function dispararAgora(modo) {
+  const p = obterPerfil();
+  const para = document.getElementById('compParaEmail').value.trim();
+  const assunto = encodeURIComponent(document.getElementById('compAssunto').value.trim());
+  const corpo = encodeURIComponent(document.getElementById('compCorpo').value);
+  const prov = modo === 'preferido' ? p.provedor : modo;
+
+  if (prov === 'gmail') {
+    // Usa authuser=SEU_EMAIL para forçar o Google Chrome a abrir a conta certa do usuário!
+    const authParam = p.email ? `&authuser=${encodeURIComponent(p.email)}` : '';
+    const url = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(para)}&su=${assunto}&body=${corpo}${authParam}`;
+    window.open(url, '_blank');
+  } else if (prov === 'outlook') {
+    const url = `https://outlook.live.com/mail/0/deeplink/compose?to=${encodeURIComponent(para)}&subject=${assunto}&body=${corpo}`;
+    window.open(url, '_blank');
+  } else {
+    window.location.href = `mailto:${para}?subject=${assunto}&body=${corpo}`;
+  }
+}
+
+function copiarTudoComposer() {
+  const para = document.getElementById('compParaEmail').value;
+  const assunto = document.getElementById('compAssunto').value;
+  const corpo = document.getElementById('compCorpo').value;
+  navigator.clipboard.writeText(`Para: ${para}\nAssunto: ${assunto}\n\n${corpo}`);
+  showToast('📋 Destinatário, assunto e texto copiados!');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.innerHTML = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+/* NAVEGAÇÃO ENTRE ABAS */
+document.querySelectorAll('.nav-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-sec').forEach(s => s.style.display = 'none');
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).style.display = 'block';
+  });
+});
+
+function extrairEmails(texto) {
+  if (!texto) return [];
+  const matches = texto.match(EMAIL_RE) || [];
+  const ignorados = ['example.com', 'email.com', 'dominio.com', 'empresa.com', 'users.noreply.github.com'];
+  const unicos = [];
+  matches.forEach(m => {
+    const clean = m.toLowerCase().replace(/[.,;:!)]+$/, '');
+    const dom = clean.split('@')[1] || '';
+    if (!ignorados.includes(dom) && !/\.(png|jpg|jpeg|svg|gif|webp)$/.test(clean) && !unicos.includes(clean)) {
+      unicos.push(clean);
+    }
+  });
+  return unicos;
+}
+
+function extrairLinkedins(texto) {
+  if (!texto) return [];
+  const matches = texto.match(LINKEDIN_RE) || [];
+  return [...new Set(matches.map(m => m.replace(/[.,;:!)\]]+$/, '')))];
+}
+
+function extrairLinkEmpresa(texto) {
+  if (!texto) return '';
+  const matches = texto.match(URL_EXTERNA_RE) || [];
+  for (const raw of matches) {
+    const clean = raw.replace(/[.,;:!)\]]+$/, '');
+    if (!/\.(png|jpg|jpeg|svg|gif|webp)$/i.test(clean)) return clean;
+  }
+  return '';
+}
+
+function abrirDetalhesVaga(idx) {
+  const v = vagasFiltradasAtuais[idx];
+  if (!v) return;
+  document.getElementById('detTituloModal').innerText = v.titulo;
+  document.getElementById('detTagsModal').innerHTML = `
+    <span class="catho-tag">🎯 ${v.nivel}</span>
+    <span class="catho-tag">📍 ${v.modalidade}</span>
+    <span class="catho-tag">🏢 ${v.fonte}</span>
+    ${v.temPy ? '<span class="catho-tag">🐍 Python</span>' : ''}
+    ${v.temJs ? '<span class="catho-tag">🟨 JavaScript / TS</span>' : ''}
+  `;
+
+  const emailBox = document.getElementById('detEmailBoxModal');
+  if (v.emails && v.emails.length > 0) {
+    const emailPri = v.emails[0];
+    const tituloEsc = v.titulo.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    emailBox.innerHTML = `
+      <div class="catho-email-box" style="margin-top:0;">
+        <div>
+          <div style="font-size:0.72rem; font-weight:700; color:var(--muted); text-transform:uppercase;">📧 E-mail Direto do RH:</div>
+          <div style="font-family:var(--font-mono); font-weight:700; color:var(--emerald); font-size:0.92rem;">${v.emails.join(' · ')}</div>
+        </div>
+        <button type="button" class="btn-catho-pink" style="min-height:38px; padding:0.45rem 1rem; font-size:0.84rem;" onclick="fecharModalDetalhes(); abrirComposerVaga('${emailPri}', '${tituloEsc}')">
+          ✉️ Preparar e Enviar Currículo
+        </button>
+      </div>
+    `;
+  } else {
+    emailBox.innerHTML = '';
+  }
+
+  document.getElementById('detCorpoModal').innerText = v.corpo || 'Sem descrição detalhada.';
+
+  const linkOficial = v.urlEmpresa || (!/github\.com/i.test(v.url || '') ? v.url : '');
+  const botoesDiv = document.getElementById('detBotoesModal');
+  botoesDiv.innerHTML = `
+    ${v.linkedins && v.linkedins.length > 0 ? `<a href="${v.linkedins[0]}" target="_blank" rel="noopener" class="btn-outline-blue">🔗 LinkedIn do Contratante ↗</a>` : ''}
+    ${linkOficial ? `<a href="${linkOficial}" target="_blank" rel="noopener" class="btn-catho-pink" style="text-decoration:none; min-height:40px; padding:0.5rem 1.15rem; font-size:0.86rem;">🌐 Candidatar-se no Portal da Empresa ↗</a>` : ''}
+  `;
+
+  document.getElementById('modalDetalhesVaga').classList.add('open');
+}
+
+function fecharModalDetalhes() {
+  document.getElementById('modalDetalhesVaga').classList.remove('open');
+}
+
+function detectarNivel(titulo, labels, corpo) {
+  const pri = `${titulo} ${(labels || []).join(' ')}`.toLowerCase();
+  if (/\b(est[aá]gio|estagi[aá]ri[oa]|intern|internship|trainee)\b/.test(pri)) return 'Estágio / Trainee';
+  if (/\b(j[uú]nior|jr)\b/.test(pri)) return 'Júnior';
+  if (/\b(pleno|mid)\b/.test(pri)) return 'Pleno';
+  if (/\b(s[eê]nior|sr|tech lead|especialista)\b/.test(pri)) return 'Sênior';
+  const ini = (corpo || '').slice(0, 350).toLowerCase();
+  if (/\b(est[aá]gio|estagi[aá]ri[oa]|trainee)\b/.test(ini)) return 'Estágio / Trainee';
+  if (/\b(j[uú]nior|jr)\b/.test(ini)) return 'Júnior';
+  return 'Múltiplos Níveis';
+}
+
+function detectarModalidade(titulo, labels, corpo) {
+  const txt = `${titulo} ${(labels || []).join(' ')} ${(corpo || '').slice(0, 500)}`.toLowerCase();
+  const isRemoto = /\b(remoto|home office|home-office|remote)\b/.test(txt);
+  const isHibrido = /\b(h[ií]brido)\b/.test(txt);
+  const isPresencial = /\b(presencial)\b/.test(txt);
+  if (isRemoto && isHibrido) return 'Híbrido / Remoto';
+  if (isRemoto) return 'Remoto';
+  if (isHibrido) return 'Híbrido';
+  if (isPresencial) return 'Presencial';
+  return 'A consultar';
+}
+
+async function buscarVagasAoVivo() {
+  const loading = document.getElementById('loadingBox');
+  const container = document.getElementById('jobsContainer');
+  loading.style.display = 'block';
+  container.innerHTML = '';
+
+  // 1. Se estiver rodando na Vercel (http/https), tenta primeiro a API Serverless (/api/vagas)
+  // que traz Vagas.com.br, Catho, Gupy e E-mails Diretos de RH sem bloqueio de CORS!
+  if (window.location.protocol.startsWith('http')) {
+    try {
+      const respApi = await fetch('/api/vagas');
+      if (respApi.ok) {
+        const jsonApi = await respApi.json();
+        if (jsonApi.items && jsonApi.items.length > 0) {
+          todasVagas = jsonApi.items;
+          loading.style.display = 'none';
+          renderizarVagas();
+          return;
+        }
+      }
+    } catch (_) {}
+  }
+
+  // 2. Fallback direto no navegador (quando aberto localmente como arquivo file://)
+  const queries = [
+    'repo:backend-br/vagas repo:frontendbr/vagas repo:react-brasil/vagas repo:pybr/vagas repo:qa-brasil/vagas state:open',
+    'repo:backend-br/vagas repo:frontendbr/vagas repo:react-brasil/vagas state:open junior OR estagio OR júnior OR estágio'
+  ];
+
+  try {
+    const resList = await Promise.all(
+      queries.map(q =>
+        fetch(`https://api.github.com/search/issues?q=${encodeURIComponent(q)}&sort=created&order=desc&per_page=70`)
+          .then(r => r.ok ? r.json() : { items: [] })
+          .catch(() => ({ items: [] }))
+      )
+    );
+
+    const mapa = new Map();
+    resList.forEach(dados => {
+      (dados.items || []).forEach(item => {
+        if (mapa.has(item.html_url)) return;
+        const titulo = item.title || '';
+        const corpo = item.body || '';
+        const labels = (item.labels || []).map(l => l.name);
+        const emails = extrairEmails(corpo);
+        const linkedins = extrairLinkedins(corpo);
+        const linkEmpresa = extrairLinkEmpresa(corpo) || linkedins[0] || '';
+        const txtAll = `${titulo} ${labels.join(' ')} ${corpo}`.toLowerCase();
+        const temJs = /\b(javascript|typescript|react|node|nodejs|vue|next\.js|nextjs|front-end|frontend|fullstack|full-stack)\b/.test(txtAll);
+        const temPy = /\b(python|django|fastapi|flask|pandas|dados|data)\b/.test(txtAll);
+
+        mapa.set(item.html_url, {
+          titulo,
+          corpo,
+          labels,
+          emails,
+          linkedins,
+          temJs,
+          temPy,
+          nivel: detectarNivel(titulo, labels, corpo),
+          modalidade: detectarModalidade(titulo, labels, corpo),
+          url: linkEmpresa || item.html_url,
+          urlEmpresa: linkEmpresa,
+          data: (item.created_at || '').slice(0, 10),
+          fonte: emails.length > 0 ? 'RH Direto (E-mail Verificado)' : 'Mural Tech Brasil'
+        });
+      });
+    });
+
+    todasVagas = Array.from(mapa.values());
+    loading.style.display = 'none';
+    renderizarVagas();
+  } catch (err) {
+    loading.style.display = 'none';
+    container.innerHTML = `<div class="catho-job-card">Erro ao consultar vagas: ${err.message}</div>`;
+  }
+}
+
+function renderizarVagas() {
+  const cargo = (document.getElementById('inpCargo').value || '').trim().toLowerCase();
+  const cidade = (document.getElementById('inpCidade').value || '').trim().toLowerCase();
+  const stack = document.getElementById('selStack').value;
+  const nivel = document.getElementById('selNivel').value;
+  const mod = document.getElementById('selModalidade').value;
+  const priorizarEmail = document.getElementById('chkOnlyEmails').checked;
+
+  let filtradas = todasVagas.filter(v => {
+    if (stack === 'js' && !v.temJs) return false;
+    if (stack === 'py' && !v.temPy) return false;
+
+    if (nivel === 'jr_estagio' && !['Estágio / Trainee', 'Júnior'].includes(v.nivel)) return false;
+    if (nivel === 'estagio' && v.nivel !== 'Estágio / Trainee') return false;
+    if (nivel === 'junior' && v.nivel !== 'Júnior') return false;
+
+    if (mod === 'remoto' && !v.modalidade.toLowerCase().includes('remoto')) return false;
+    if (mod === 'presencial' && !['híbrido', 'presencial', 'híbrido / remoto'].includes(v.modalidade.toLowerCase())) return false;
+
+    const textoVaga = `${v.titulo} ${(v.labels || []).join(' ')} ${(v.corpo || '').slice(0, 700)}`.toLowerCase();
+    if (cargo && !textoVaga.includes(cargo)) return false;
+    if (cidade && !textoVaga.includes(cidade)) return false;
+
+    return true;
+  });
+
+  filtradas.sort((a, b) => {
+    if (criterioOrdenacao === 'email' || priorizarEmail) {
+      const diffEmail = ((b.emails || []).length > 0 ? 1 : 0) - ((a.emails || []).length > 0 ? 1 : 0);
+      if (diffEmail !== 0) return diffEmail;
+    }
+    return (b.data || '').localeCompare(a.data || '');
+  });
+
+  vagasFiltradasAtuais = filtradas;
+
+  document.getElementById('lblTotalResultados').innerText = filtradas.length;
+  document.getElementById('statEmails').innerText = filtradas.filter(v => (v.emails || []).length > 0).length;
+  document.getElementById('statJr').innerText = filtradas.filter(v => ['Estágio / Trainee', 'Júnior'].includes(v.nivel)).length;
+  document.getElementById('statLinkedin').innerText = filtradas.filter(v => (v.linkedins || []).length > 0).length;
+
+  const container = document.getElementById('jobsContainer');
+  container.innerHTML = '';
+
+  if (filtradas.length === 0) {
+    container.innerHTML = `
+      <div class="catho-job-card" style="text-align:center;">
+        <h3 class="catho-job-title">Nenhuma vaga encontrada com esses filtros</h3>
+        <p style="color:var(--muted); font-size:0.88rem;">Experimente mudar o filtro "Contrato / Nível" para <strong>Todos</strong> ou limpar o campo de Localização.</p>
+      </div>`;
+    return;
+  }
+
+  filtradas.forEach((v, idx) => {
+    const temEmail = (v.emails || []).length > 0;
+    const card = document.createElement('article');
+    card.className = `catho-job-card ${temEmail ? 'has-direct-email' : ''}`;
+
+    const partesData = (v.data || '').split('-');
+    const dataBr = partesData.length === 3 ? `${partesData[2]}/${partesData[1]}` : v.data;
+
+    let emailArea = '';
+    if (temEmail) {
+      const emailPri = v.emails[0];
+      const tituloEsc = v.titulo.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      emailArea = `
+        <div class="catho-email-box">
+          <div>
+            <div style="font-size:0.72rem; font-weight:700; color:var(--muted); text-transform:uppercase;">📧 E-mail Direto do RH / Contratante:</div>
+            <div style="font-family:var(--font-mono); font-weight:700; color:var(--emerald); font-size:0.92rem;">${v.emails.join(' · ')}</div>
+          </div>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button type="button" class="btn-outline-blue" onclick="navigator.clipboard.writeText('${emailPri}'); showToast('📋 E-mail copiado: ${emailPri}')">
+              📋 Copiar E-mail
+            </button>
+            <button type="button" class="btn-catho-pink" style="min-height:38px; padding:0.45rem 1rem; font-size:0.84rem;" onclick="abrirComposerVaga('${emailPri}', '${tituloEsc}')">
+              ✉️ Preparar e Enviar Currículo
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    const linkPortal = v.urlEmpresa || (!/github\.com/i.test(v.url || '') ? v.url : '');
+
+    card.innerHTML = `
+      <div class="catho-job-card__meta">
+        <span class="catho-highlight-label">${temEmail ? '🔥 VAGA COM E-MAIL DIRETO DO RH' : `PORTAL: ${(v.fonte || 'OFICIAL').toUpperCase()}`}</span>
+        <span style="color:var(--muted);">Publicada em ${dataBr} · ${v.fonte}</span>
+      </div>
+      <div class="catho-active-recruiter-pill">
+        ${temEmail ? 'Recrutador recebe currículo por e-mail' : `Nível: ${v.nivel}`}
+      </div>
+      <h2 class="catho-job-title" style="cursor:pointer;" onclick="abrirDetalhesVaga(${idx})">${v.titulo}</h2>
+      <div class="catho-job-tags">
+        <span class="catho-tag">🎯 ${v.nivel}</span>
+        <span class="catho-tag">📍 ${v.modalidade}</span>
+        ${v.temPy ? '<span class="catho-tag">🐍 Python</span>' : ''}
+        ${v.temJs ? '<span class="catho-tag">🟨 JavaScript / TS</span>' : ''}
+        ${(v.labels || []).slice(0, 3).map(l => `<span class="catho-tag">${l}</span>`).join('')}
+      </div>
+      ${emailArea}
+      <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:0.85rem; flex-wrap:wrap;">
+        ${(v.linkedins || []).length > 0 ? `<a href="${v.linkedins[0]}" target="_blank" rel="noopener" class="btn-outline-blue">🔗 LinkedIn do Contratante ↗</a>` : ''}
+        <button type="button" class="btn-outline-blue" onclick="abrirDetalhesVaga(${idx})">📄 Ler Descrição Completa</button>
+        ${linkPortal ? `<a href="${linkPortal}" target="_blank" rel="noopener" class="btn-catho-pink" style="text-decoration:none; min-height:36px; padding:0.4rem 0.95rem; font-size:0.82rem;">🌐 Abrir no Portal Oficial ↗</a>` : ''}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+document.getElementById('btnProcurarVagas').addEventListener('click', renderizarVagas);
+['selStack', 'selNivel', 'selModalidade', 'chkOnlyEmails'].forEach(id => {
+  document.getElementById(id).addEventListener('change', renderizarVagas);
+});
+['inpCargo', 'inpCidade'].forEach(id => {
+  document.getElementById(id).addEventListener('input', renderizarVagas);
+});
+
+document.querySelectorAll('.catho-tag-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.catho-tag-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    document.getElementById('inpCidade').value = chip.dataset.uf;
+    renderizarVagas();
+  });
+});
+
+document.getElementById('btnSortEmail').addEventListener('click', () => {
+  criterioOrdenacao = 'email';
+  document.getElementById('btnSortEmail').classList.add('active');
+  document.getElementById('btnSortRecent').classList.remove('active');
+  renderizarVagas();
+});
+document.getElementById('btnSortRecent').addEventListener('click', () => {
+  criterioOrdenacao = 'recent';
+  document.getElementById('btnSortRecent').classList.add('active');
+  document.getElementById('btnSortEmail').classList.remove('active');
+  renderizarVagas();
+});
+
+document.getElementById('btnExportCsv').addEventListener('click', () => {
+  if (todasVagas.length === 0) return;
+  const rows = [['Titulo', 'Nivel', 'Modalidade', 'Emails_RH', 'LinkedIn', 'URL']];
+  todasVagas.forEach(v => {
+    rows.push([
+      `"${(v.titulo || '').replace(/"/g, '""')}"`,
+      `"${v.nivel}"`,
+      `"${v.modalidade}"`,
+      `"${v.emails.join(', ')}"`,
+      `"${v.linkedins.join(', ')}"`,
+      `"${v.url}"`
+    ]);
+  });
+  const csv = '\uFEFF' + rows.map(r => r.join(';')).join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'CathoDev_Vagas_Emails_RH.csv';
+  a.click();
+});
+
+sincronizarLabelRemetente();
+buscarVagasAoVivo();
+</script>
+</body>
+</html>
